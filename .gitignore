@@ -1,0 +1,11 @@
+node_modules
+.next
+out
+.agents
+.env.local
+.env
+.env.txt
+public/uploads/*
+!public/uploads/.gitkeep
+prisma/*.db
+.DS_Store

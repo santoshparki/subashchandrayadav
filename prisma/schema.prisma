@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String   @default("Administrator")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Profile {
+  id             Int      @id @default(1)
+  name           String
+  title          String
+  heroHeading    String   @default("Building certainty into every site.")
+  tagline        String
+  summary        String   @db.Text
+  aboutText      String   @db.Text @default("My approach combines practical field awareness with accurate design thinking. From construction drawings and inspections to progress coordination and safety compliance, I bring clarity to the details that determine project quality.")
+  contactHeading String   @default("Let's build something that lasts.")
+  contactIntro   String   @db.Text @default("Open to civil site engineering, quality control, residential design support, and project coordination opportunities.")
+  location       String
+  email          String
+  phone          String
+  availability   String
+  photoUrl       String   @default("/subhash-photo.jpeg")
+  cvUrl          String   @default("/subhash-chandra-yadav-cv.html")
+  yearsExperience String  @default("1+")
+  updatedAt      DateTime @updatedAt
+}
+
+model SiteStat {
+  id        String @id @default(cuid())
+  value     String
+  label     String
+  sortOrder Int    @default(0)
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  title       String
+  category    String
+  description String   @db.Text
+  location    String?
+  year        String?
+  duration    String?
+  role        String?
+  responsibilities String? @db.Text
+  technologies String?
+  imageUrl    String?
+  featured    Boolean  @default(false)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Skill {
+  id        String @id @default(cuid())
+  name      String
+  category  String @default("Technical")
+  level     Int    @default(80)
+  levelLabel String @default("Advanced")
+  sortOrder Int    @default(0)
+}
+
+model Service {
+  id          String @id @default(cuid())
+  title       String
+  description String @db.Text
+  icon        String @default("Building2")
+  sortOrder   Int    @default(0)
+}
+
+model TimelineItem {
+  id          String @id @default(cuid())
+  type        String
+  title       String
+  organization String
+  location    String?
+  startDate   String
+  endDate     String
+  description String @db.Text
+  sortOrder   Int    @default(0)
+}
+
+model SocialLink {
+  id        String   @id @default(cuid())
+  platform  String
+  url       String
+  icon      String   @default("Globe")
+  active    Boolean  @default(true)
+  displayOrder Int   @default(0) @map("sortOrder")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Enquiry {
+  id              String        @id @default(cuid())
+  fullName        String
+  email           String
+  phone           String?
+  opportunityType String
+  companyName     String?
+  preferredContactMethod String @default("Email")
+  location        String?
+  budgetRange     String?
+  message         String        @db.Text
+  status          EnquiryStatus @default(NEW)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model Certification {
+  id           String @id @default(cuid())
+  title        String
+  issuer       String
+  location     String?
+  issuedDate   String?
+  credentialUrl String?
+  description  String @db.Text
+  sortOrder    Int    @default(0)
+}
+
+enum EnquiryStatus {
+  NEW
+  CONTACTED
+  IN_PROGRESS
+  CLOSED
+}
