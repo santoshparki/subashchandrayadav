@@ -8,6 +8,7 @@ const secret = new TextEncoder().encode(process.env.AUTH_SECRET || "development-
 const cookieName = "portfolio-admin-session";
 const accessCookieName = "portfolio-supabase-access-token";
 const refreshCookieName = "portfolio-supabase-refresh-token";
+const defaultAdminRefreshPath = "/admin/session/refresh";
 
 export async function createSession(userId: string, supabaseSession?: Pick<Session, "access_token" | "refresh_token" | "expires_in">) {
   const token = await new SignJWT({ userId }).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime("7d").sign(secret);
@@ -28,26 +29,48 @@ export async function getSession() {
   }
 }
 
-export async function requireAdmin() {
+type RequireAdminOptions = {
+  allowCookieMutation?: boolean;
+  refreshPath?: string;
+};
+
+export async function refreshAdminSession() {
+  const refreshToken = (await cookies()).get(refreshCookieName)?.value;
+  const supabase = getSupabaseAuthClient();
+  if (!supabase || !refreshToken) return null;
+
+  const { data, error } = await supabase.auth.refreshSession({ refresh_token: refreshToken });
+  if (error || !data.user || !data.session) return null;
+
+  await createSession(data.user.id, data.session);
+  return { userId: data.user.id };
+}
+
+export async function requireAdmin({ allowCookieMutation = false, refreshPath = "/admin" }: RequireAdminOptions = {}) {
   const session = await getSession();
   if (!session?.userId) redirect("/admin/login");
   const supabase = getSupabaseAuthClient();
   const accessToken = (await cookies()).get(accessCookieName)?.value;
   const refreshToken = (await cookies()).get(refreshCookieName)?.value;
-  if (!supabase) redirect("/admin/login");
+  if (!supabase) {
+    if (allowCookieMutation) await clearSession();
+    redirect("/admin/login");
+  }
   if (accessToken) {
     const { data, error } = await supabase.auth.getUser(accessToken);
     if (!error && data.user) return session;
   }
   if (refreshToken) {
-    const { data, error } = await supabase.auth.refreshSession({ refresh_token: refreshToken });
-    if (!error && data.user && data.session) {
-      await createSession(data.user.id, data.session);
-      return { userId: data.user.id };
-    }
+    if (!allowCookieMutation) redirect(`${defaultAdminRefreshPath}?next=${encodeURIComponent(refreshPath)}`);
+    const refreshed = await refreshAdminSession();
+    if (refreshed) return refreshed;
   }
-  await clearSession();
+  if (allowCookieMutation) await clearSession();
   redirect("/admin/login");
+}
+
+export async function requireAdminAction() {
+  return requireAdmin({ allowCookieMutation: true });
 }
 
 export async function clearSession() {

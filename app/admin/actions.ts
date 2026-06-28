@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { clearSession, createSession, requireAdmin } from "@/lib/auth";
+import { clearSession, createSession, requireAdminAction } from "@/lib/auth";
 import { getSupabaseAuthClient } from "@/lib/supabase";
 import { deleteManagedFile, saveManagedFile } from "@/lib/storage";
 
@@ -27,7 +27,7 @@ export async function loginAction(_state: { error: string }, data: FormData): Pr
 export async function logoutAction() { await clearSession(); redirect("/admin/login"); }
 
 export async function saveProfile(data: FormData) {
-  await requireAdmin();
+  await requireAdminAction();
   await prisma.profile.upsert({
     where: { id: 1 },
     update: { name: text(data,"name"), title: text(data,"title"), heroHeading: text(data,"heroHeading"), tagline: text(data,"tagline"), summary: text(data,"summary"), aboutText: text(data,"aboutText"), contactHeading: text(data,"contactHeading"), contactIntro: text(data,"contactIntro"), location: text(data,"location"), email: text(data,"email"), phone: text(data,"phone"), availability: text(data,"availability"), yearsExperience: text(data,"yearsExperience") },
@@ -37,7 +37,7 @@ export async function saveProfile(data: FormData) {
 }
 
 export async function saveProject(data: FormData) {
-  await requireAdmin(); const id = text(data,"id");
+  await requireAdminAction(); const id = text(data,"id");
   let imageUrl = text(data, "existingImageUrl") || null;
   const image = data.get("image") as File;
   if (image?.size) {
@@ -52,7 +52,7 @@ export async function saveProject(data: FormData) {
 }
 
 export async function saveSkill(data: FormData) {
-  await requireAdmin(); const id = text(data,"id");
+  await requireAdminAction(); const id = text(data,"id");
   const levelLabel = text(data, "levelLabel") || "Advanced";
   const levelMap: Record<string, number> = { Expert: 95, Advanced: 82, Intermediate: 65 };
   const values = { name: text(data,"name"), category: text(data,"category"), level: levelMap[levelLabel] || 82, levelLabel, sortOrder: number(data,"sortOrder") };
@@ -61,35 +61,35 @@ export async function saveSkill(data: FormData) {
 }
 
 export async function saveService(data: FormData) {
-  await requireAdmin(); const id = text(data,"id");
+  await requireAdminAction(); const id = text(data,"id");
   const values = { title: text(data,"title"), description: text(data,"description"), icon: text(data,"icon") || "Building2", sortOrder: number(data,"sortOrder") };
   if (id) await prisma.service.update({ where: { id }, data: values }); else await prisma.service.create({ data: values });
   revalidatePath("/"); revalidatePath("/admin");
 }
 
 export async function saveTimeline(data: FormData) {
-  await requireAdmin(); const id = text(data,"id");
+  await requireAdminAction(); const id = text(data,"id");
   const values = { type: text(data,"type"), title: text(data,"title"), organization: text(data,"organization"), location: text(data,"location") || null, startDate: text(data,"startDate"), endDate: text(data,"endDate"), description: text(data,"description"), sortOrder: number(data,"sortOrder") };
   if (id) await prisma.timelineItem.update({ where: { id }, data: values }); else await prisma.timelineItem.create({ data: values });
   revalidatePath("/"); revalidatePath("/admin");
 }
 
 export async function saveStat(data: FormData) {
-  await requireAdmin(); const id = text(data,"id");
+  await requireAdminAction(); const id = text(data,"id");
   const values = { value: text(data,"value"), label: text(data,"label"), sortOrder: number(data,"sortOrder") };
   if (id) await prisma.siteStat.update({ where: { id }, data: values }); else await prisma.siteStat.create({ data: values });
   revalidatePath("/"); revalidatePath("/admin");
 }
 
 export async function saveSocialLink(data: FormData) {
-  await requireAdmin(); const id = text(data,"id");
+  await requireAdminAction(); const id = text(data,"id");
   const values = { platform: text(data,"platform"), url: text(data,"url"), icon: text(data,"icon") || "Globe", active: data.get("active") === "on", displayOrder: number(data,"displayOrder") };
   if (id) await prisma.socialLink.update({ where: { id }, data: values }); else await prisma.socialLink.create({ data: values });
   revalidatePath("/"); revalidatePath("/admin");
 }
 
 export async function saveCertification(data: FormData) {
-  await requireAdmin(); const id = text(data,"id");
+  await requireAdminAction(); const id = text(data,"id");
   let imageUrl = text(data, "existingImageUrl") || null;
   const image = data.get("image") as File;
   if (image?.size) {
@@ -104,20 +104,20 @@ export async function saveCertification(data: FormData) {
 }
 
 export async function saveAchievement(data: FormData) {
-  await requireAdmin(); const id = text(data,"id");
+  await requireAdminAction(); const id = text(data,"id");
   const values = { title: text(data,"title"), organization: text(data,"organization") || null, year: text(data,"year") || null, description: text(data,"description"), linkUrl: text(data,"linkUrl") || null, sortOrder: number(data,"sortOrder") };
   if (id) await prisma.achievement.update({ where: { id }, data: values }); else await prisma.achievement.create({ data: values });
   revalidatePath("/"); revalidatePath("/admin");
 }
 
 export async function updateEnquiryStatus(data: FormData) {
-  await requireAdmin();
+  await requireAdminAction();
   await prisma.enquiry.update({ where: { id: text(data, "id") }, data: { status: text(data, "status") as "NEW" | "CONTACTED" | "IN_PROGRESS" | "CLOSED" } });
   revalidatePath("/admin");
 }
 
 export async function deleteItem(data: FormData) {
-  await requireAdmin(); const id = text(data,"id"); const type = text(data,"type");
+  await requireAdminAction(); const id = text(data,"id"); const type = text(data,"type");
   if (type === "project") await prisma.project.delete({ where: { id } });
   if (type === "skill") await prisma.skill.delete({ where: { id } });
   if (type === "service") await prisma.service.delete({ where: { id } });
@@ -135,7 +135,7 @@ export async function deleteItem(data: FormData) {
 }
 
 export async function uploadAsset(data: FormData) {
-  await requireAdmin();
+  await requireAdminAction();
   const kind = text(data,"kind"); const file = data.get("file") as File;
   if (!file || file.size === 0 || file.size > 8 * 1024 * 1024) return;
   const allowed = kind === "photo" ? ["image/jpeg","image/png","image/webp"] : ["application/pdf","text/html","application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
