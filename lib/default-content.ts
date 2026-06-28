@@ -44,7 +44,11 @@ export const defaultContent = {
     { id: "p3", title: "Active Site Coordination", category: "Site Engineering", description: "Daily field supervision, facility coordination, progress monitoring, and equipment inspection for active building works.", location: "Ithari, Nepal", year: "2024-2025", duration: "13 months", role: "Civil Site Engineer", responsibilities: "Monitored progress, coordinated site facilities, inspected tools and equipment, and supported safe daily execution.", technologies: "Progress Tracking, Site Supervision", imageUrl: null, featured: true, sortOrder: 3 }
   ],
   certifications: [
-    { id: "c1", title: "Engineering Training Certification", issuer: "Shivam Engineering Consultancy & Training Pvt. Ltd.", location: null, issuedDate: "", credentialUrl: null, description: "Certified construction and engineering training.", sortOrder: 1 }
+    { id: "c1", title: "Engineering Training Certification", issuer: "Shivam Engineering Consultancy & Training Pvt. Ltd.", location: null, issuedDate: "", credentialUrl: null, imageUrl: null, description: "Certified construction and engineering training.", sortOrder: 1 }
+  ],
+  achievements: [
+    { id: "a1", title: "Bachelor of Civil Engineering with 8.58 CGPA", organization: "Jain University", year: "2023", description: "Graduated with strong academic performance and practical civil engineering training.", linkUrl: null, sortOrder: 1 },
+    { id: "a2", title: "Civil site engineering field experience", organization: "Makalu Builders Pvt. Ltd.", year: "2024-2025", description: "Built hands-on experience in site supervision, progress monitoring, quality checks, and safety coordination.", linkUrl: null, sortOrder: 2 }
   ],
   timeline: [
     { id: "t1", type: "experience", title: "Civil Site Engineer", organization: "Makalu Builders Pvt. Ltd.", location: "Ithari, Nepal", startDate: "Jan 2024", endDate: "Feb 2025", description: "Conducted daily site visits to monitor work quality. Coordinated site facilities, monitored project progress, and inspected tools and equipment to maintain efficiency and safety.", sortOrder: 1 },

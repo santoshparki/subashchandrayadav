@@ -90,8 +90,23 @@ export async function saveSocialLink(data: FormData) {
 
 export async function saveCertification(data: FormData) {
   await requireAdmin(); const id = text(data,"id");
-  const values = { title: text(data,"title"), issuer: text(data,"issuer"), location: text(data,"location") || null, issuedDate: text(data,"issuedDate") || null, credentialUrl: text(data,"credentialUrl") || null, description: text(data,"description"), sortOrder: number(data,"sortOrder") };
+  let imageUrl = text(data, "existingImageUrl") || null;
+  const image = data.get("image") as File;
+  if (image?.size) {
+    const allowed = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowed.includes(image.type) || image.size > 8 * 1024 * 1024) return;
+    if (imageUrl) await deleteManagedFile(imageUrl);
+    imageUrl = await saveManagedFile(image, "certifications");
+  }
+  const values = { title: text(data,"title"), issuer: text(data,"issuer"), location: text(data,"location") || null, issuedDate: text(data,"issuedDate") || null, credentialUrl: text(data,"credentialUrl") || null, imageUrl, description: text(data,"description"), sortOrder: number(data,"sortOrder") };
   if (id) await prisma.certification.update({ where: { id }, data: values }); else await prisma.certification.create({ data: values });
+  revalidatePath("/"); revalidatePath("/admin");
+}
+
+export async function saveAchievement(data: FormData) {
+  await requireAdmin(); const id = text(data,"id");
+  const values = { title: text(data,"title"), organization: text(data,"organization") || null, year: text(data,"year") || null, description: text(data,"description"), linkUrl: text(data,"linkUrl") || null, sortOrder: number(data,"sortOrder") };
+  if (id) await prisma.achievement.update({ where: { id }, data: values }); else await prisma.achievement.create({ data: values });
   revalidatePath("/"); revalidatePath("/admin");
 }
 
@@ -110,7 +125,12 @@ export async function deleteItem(data: FormData) {
   if (type === "stat") await prisma.siteStat.delete({ where: { id } });
   if (type === "social") await prisma.socialLink.delete({ where: { id } });
   if (type === "enquiry") await prisma.enquiry.delete({ where: { id } });
-  if (type === "certification") await prisma.certification.delete({ where: { id } });
+  if (type === "certification") {
+    const item = await prisma.certification.findUnique({ where: { id } });
+    await prisma.certification.delete({ where: { id } });
+    await deleteManagedFile(item?.imageUrl);
+  }
+  if (type === "achievement") await prisma.achievement.delete({ where: { id } });
   revalidatePath("/"); revalidatePath("/admin");
 }
 

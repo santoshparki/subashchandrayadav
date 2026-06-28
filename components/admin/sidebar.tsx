@@ -6,6 +6,7 @@ import {
   GraduationCap,
   LogOut,
   MailQuestion,
+  Award,
   Share2,
   Settings2,
   UserRound
@@ -21,6 +22,7 @@ const links = [
   [BriefcaseBusiness, "Experience", "#experience"],
   [GraduationCap, "Education", "#education"],
   [GraduationCap, "Certifications", "#certifications"],
+  [Award, "Achievements", "#achievements"],
   [Share2, "Social Links", "#social-links"],
   [MailQuestion, "Enquiries", "#enquiries"]
 ] as const;

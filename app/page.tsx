@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ArrowDown, ArrowUpRight, Building2, CheckCircle2, ClipboardCheck, DraftingCompass, Download, HardHat, Mail, MapPin, Phone, Ruler, Sparkles } from "lucide-react";
+import { ArrowDown, ArrowUpRight, Award, Building2, CheckCircle2, ClipboardCheck, DraftingCompass, Download, HardHat, Mail, MapPin, Phone, Ruler, Sparkles } from "lucide-react";
 import { getPortfolioContent } from "@/lib/content";
 import { SiteHeader } from "@/components/site-header";
 import { SectionTitle } from "@/components/section-title";
@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 const serviceIcons = { HardHat, ClipboardCheck, DraftingCompass, Building2 };
 
 export default async function Home() {
-  const { profile, stats, skills, services, projects, timeline, certifications, socialLinks } = await getPortfolioContent();
+  const { profile, stats, skills, services, projects, timeline, certifications, achievements, socialLinks } = await getPortfolioContent();
   const experience = timeline.filter((item) => item.type === "experience");
   const education = timeline.filter((item) => item.type === "education");
 
@@ -89,13 +89,26 @@ export default async function Home() {
       <div className="container-shell"><SectionTitle eyebrow="04 / Experience" title="Experience grounded in the field." />
         <div className="mt-14 grid gap-16">
           <div>{experience.map((item, index) => <article key={item.id} className="grid gap-4 border-t border-ink/15 py-8 sm:grid-cols-[130px_1fr]"><div className="text-xs font-bold uppercase tracking-wider text-copper">{item.startDate}<br />{item.endDate}</div><div><p className="text-xs text-ink/45">{item.organization} · {item.location}</p><h3 className="mt-2 text-2xl font-bold">{item.title}</h3><p className="mt-4 max-w-2xl leading-8 text-ink/58">{item.description}</p></div></article>)}</div>
-          <aside id="education" className="scroll-mt-24 bg-blueprint p-8 text-white"><Sparkles className="text-copper" /><p className="mt-7 text-[11px] font-extrabold uppercase tracking-[.24em] text-copper">05 / Education</p><h3 className="mt-4 font-display text-3xl font-semibold">Education & training</h3>{education.map(item => <div key={item.id} className="mt-7 border-t border-white/10 pt-6"><p className="text-xs text-copper">{item.endDate}</p><h4 className="mt-2 font-bold">{item.title}</h4><p className="mt-1 text-sm text-white/50">{item.organization}{item.location ? `, ${item.location}` : ""}</p><p className="mt-3 text-sm leading-6 text-white/55">{item.description}</p></div>)}{certifications.length > 0 && <div className="mt-10"><p className="text-[11px] font-extrabold uppercase tracking-[.24em] text-copper">Certifications</p>{certifications.map(item => <div key={item.id} className="mt-6 border-t border-white/10 pt-5"><p className="flex items-center gap-2 text-xs text-copper"><CheckCircle2 size={14} />{item.issuedDate || "Certified"}</p><h4 className="mt-2 font-bold">{item.title}</h4><p className="mt-1 text-sm text-white/50">{item.issuer}{item.location ? `, ${item.location}` : ""}</p><p className="mt-3 text-sm leading-6 text-white/55">{item.description}</p>{item.credentialUrl && <a href={item.credentialUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 text-xs text-copper">View credential <ArrowUpRight size={13} /></a>}</div>)}</div>}</aside>
+          <aside id="education" className="scroll-mt-24 bg-blueprint p-8 text-white"><Sparkles className="text-copper" /><p className="mt-7 text-[11px] font-extrabold uppercase tracking-[.24em] text-copper">05 / Education</p><h3 className="mt-4 font-display text-3xl font-semibold">Education & training</h3>{education.map(item => <div key={item.id} className="mt-7 border-t border-white/10 pt-6"><p className="text-xs text-copper">{item.endDate}</p><h4 className="mt-2 font-bold">{item.title}</h4><p className="mt-1 text-sm text-white/50">{item.organization}{item.location ? `, ${item.location}` : ""}</p><p className="mt-3 text-sm leading-6 text-white/55">{item.description}</p></div>)}{certifications.length > 0 && <div className="mt-10"><p className="text-[11px] font-extrabold uppercase tracking-[.24em] text-copper">Certifications</p>{certifications.map(item => <div key={item.id} className="mt-6 border-t border-white/10 pt-5">{item.imageUrl && <div className="relative mb-5 aspect-[16/9] overflow-hidden bg-ink/35"><Image src={item.imageUrl} alt={`${item.title} certificate`} fill loading="lazy" className="object-cover" sizes="(max-width: 1024px) 90vw, 38vw" /></div>}<p className="flex items-center gap-2 text-xs text-copper"><CheckCircle2 size={14} />{item.issuedDate || "Certified"}</p><h4 className="mt-2 font-bold">{item.title}</h4><p className="mt-1 text-sm text-white/50">{item.issuer}{item.location ? `, ${item.location}` : ""}</p><p className="mt-3 text-sm leading-6 text-white/55">{item.description}</p>{item.credentialUrl && <a href={item.credentialUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 text-xs text-copper">View credential <ArrowUpRight size={13} /></a>}</div>)}</div>}</aside>
         </div>
       </div>
     </section>
 
+    {achievements.length > 0 && <section id="achievements" className="section-pad bg-white">
+      <div className="container-shell"><SectionTitle eyebrow="06 / Achievements" title="Milestones earned through study and site work." copy="Academic highlights, professional progress, and notable accomplishments from civil engineering practice." />
+        <div className="mt-14 grid gap-px bg-ink/10 md:grid-cols-2 xl:grid-cols-3">{achievements.map((item, index) => <article key={item.id} className="bg-white p-7 sm:p-8">
+          <div className="flex items-start justify-between gap-6"><Award size={30} strokeWidth={1.4} className="shrink-0 text-copper" /><span className="font-display text-5xl text-ink/10">0{index + 1}</span></div>
+          <p className="mt-10 text-xs font-bold uppercase tracking-[.16em] text-copper">{item.year || "Achievement"}</p>
+          <h3 className="mt-3 text-xl font-bold">{item.title}</h3>
+          {item.organization && <p className="mt-2 text-sm text-ink/45">{item.organization}</p>}
+          <p className="mt-4 leading-7 text-ink/58">{item.description}</p>
+          {item.linkUrl && <a href={item.linkUrl} target="_blank" rel="noreferrer" className="mt-5 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[.12em] text-copper">View more <ArrowUpRight size={13} /></a>}
+        </article>)}</div>
+      </div>
+    </section>}
+
     <section id="contact" className="section-pad relative bg-ink text-white"><div className="blueprint-grid absolute inset-0 opacity-20" /><div className="container-shell relative grid gap-14 lg:grid-cols-2">
-      <div><p className="eyebrow">05 / Contact</p><h2 className="mt-5 font-display text-5xl font-semibold leading-none sm:text-7xl">{profile.contactHeading}</h2><p className="mt-7 max-w-lg leading-8 text-white/55">{profile.contactIntro}</p>
+      <div><p className="eyebrow">07 / Contact</p><h2 className="mt-5 font-display text-5xl font-semibold leading-none sm:text-7xl">{profile.contactHeading}</h2><p className="mt-7 max-w-lg leading-8 text-white/55">{profile.contactIntro}</p>
         <div className="mt-10 grid gap-4"><a href={`mailto:${profile.email}`} className="contact-link"><Mail size={18} />{profile.email}</a><a href={`tel:${profile.phone.replace(/\s/g, "")}`} className="contact-link"><Phone size={18} />{profile.phone}</a><div className="contact-link"><MapPin size={18} />{profile.location}</div></div>
         <div className="mt-8"><SocialLinks links={socialLinks} /></div>
       </div><ContactForm email={profile.email} />

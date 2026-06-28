@@ -124,7 +124,18 @@ model Certification {
   location     String?
   issuedDate   String?
   credentialUrl String?
+  imageUrl     String?
   description  String @db.Text
+  sortOrder    Int    @default(0)
+}
+
+model Achievement {
+  id           String @id @default(cuid())
+  title        String
+  organization String?
+  year         String?
+  description  String @db.Text
+  linkUrl      String?
   sortOrder    Int    @default(0)
 }
 
