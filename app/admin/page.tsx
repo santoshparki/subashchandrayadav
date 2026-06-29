@@ -7,12 +7,18 @@ import { ItemShell } from "@/components/admin/item-form";
 import { saveAchievement, saveCertification, saveProfile, saveProject, saveService, saveSkill, saveSocialLink, saveStat, saveTimeline, updateEnquiryStatus, uploadAsset } from "./actions";
 
 export const dynamic = "force-dynamic";
+const adminDataTimeoutMs = 8000;
 
 export default async function AdminPage() {
   await requireAdmin();
-  const [profile, stats, projects, skills, services, timeline, certifications, achievements, socialLinks, enquiries] = await Promise.all([
-    prisma.profile.findUnique({ where: { id: 1 } }), prisma.siteStat.findMany({ orderBy: { sortOrder: "asc" } }), prisma.project.findMany({ orderBy: { sortOrder: "asc" } }), prisma.skill.findMany({ orderBy: { sortOrder: "asc" } }), prisma.service.findMany({ orderBy: { sortOrder: "asc" } }), prisma.timelineItem.findMany({ orderBy: { sortOrder: "asc" } }), prisma.certification.findMany({ orderBy: { sortOrder: "asc" } }), prisma.achievement.findMany({ orderBy: { sortOrder: "asc" } }), prisma.socialLink.findMany({ orderBy: { displayOrder: "asc" } }), prisma.enquiry.findMany({ orderBy: { createdAt: "desc" }, take: 50 })
-  ]);
+  let data: Awaited<ReturnType<typeof getAdminData>>;
+  try {
+    data = await getAdminData();
+  } catch (error) {
+    return <AdminDatabaseError message={getAdminErrorMessage(error)} />;
+  }
+
+  const { profile, stats, projects, skills, services, timeline, certifications, achievements, socialLinks, enquiries } = data;
   const p = profile || defaultContent.profile;
   const experience = timeline.filter((item) => item.type === "experience");
   const education = timeline.filter((item) => item.type === "education");
@@ -64,6 +70,35 @@ export default async function AdminPage() {
       <div className="grid gap-5">{enquiries.map(item => <div key={item.id} className="admin-card"><div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"><div><p className="eyebrow">{item.opportunityType}</p><h3 className="mt-2 text-xl font-bold">{item.fullName}</h3><p className="mt-1 text-sm text-ink/50">{item.email}{item.phone ? ` · ${item.phone}` : ""}</p><p className="mt-1 text-xs text-ink/40">{item.location || "No location"}{item.companyName ? ` · ${item.companyName}` : ""} · Prefers {item.preferredContactMethod} · {item.createdAt.toLocaleString()}</p></div><form action={updateEnquiryStatus} className="flex gap-2"><input type="hidden" name="id" value={item.id} /><select name="status" defaultValue={item.status} className="admin-input"><option value="NEW">New</option><option value="CONTACTED">Contacted</option><option value="IN_PROGRESS">In Progress</option><option value="CLOSED">Closed</option></select><button className="admin-button">Save</button></form></div><p className="mt-5 whitespace-pre-wrap border-t border-ink/10 pt-5 text-sm leading-7 text-ink/65">{item.message}</p></div>)}
       {!enquiries.length && <div className="admin-card text-sm text-ink/50">No enquiries yet.</div>}</div>
     </AdminSection>
+  </div></main>;
+}
+
+async function getAdminData() {
+  const query = Promise.all([
+    prisma.profile.findUnique({ where: { id: 1 } }), prisma.siteStat.findMany({ orderBy: { sortOrder: "asc" } }), prisma.project.findMany({ orderBy: { sortOrder: "asc" } }), prisma.skill.findMany({ orderBy: { sortOrder: "asc" } }), prisma.service.findMany({ orderBy: { sortOrder: "asc" } }), prisma.timelineItem.findMany({ orderBy: { sortOrder: "asc" } }), prisma.certification.findMany({ orderBy: { sortOrder: "asc" } }), prisma.achievement.findMany({ orderBy: { sortOrder: "asc" } }), prisma.socialLink.findMany({ orderBy: { displayOrder: "asc" } }), prisma.enquiry.findMany({ orderBy: { createdAt: "desc" }, take: 50 })
+  ]);
+  const timeout = new Promise<never>((_, reject) => {
+    setTimeout(() => reject(new Error(`Database did not respond within ${adminDataTimeoutMs / 1000} seconds.`)), adminDataTimeoutMs);
+  });
+  const [profile, stats, projects, skills, services, timeline, certifications, achievements, socialLinks, enquiries] = await Promise.race([query, timeout]);
+
+  return { profile, stats, projects, skills, services, timeline, certifications, achievements, socialLinks, enquiries };
+}
+
+function getAdminErrorMessage(error: unknown) {
+  if (error instanceof Error) return error.message;
+  return "The admin database could not be reached.";
+}
+
+function AdminDatabaseError({ message }: { message: string }) {
+  return <main className="min-h-screen bg-[#ebe9e2]"><AdminSidebar /><div className="p-5 sm:p-8 lg:ml-64 lg:p-10 xl:p-12">
+    <section className="admin-card max-w-3xl">
+      <p className="eyebrow">Database connection</p>
+      <h1 className="mt-3 font-display text-5xl font-semibold">Admin data is unavailable.</h1>
+      <p className="mt-5 leading-7 text-ink/60">You are signed in, but the dashboard cannot load content because Prisma cannot connect to the configured PostgreSQL database.</p>
+      <pre className="mt-6 overflow-auto bg-blueprint p-4 text-xs leading-6 text-white">{message}</pre>
+      <p className="mt-6 text-sm leading-7 text-ink/55">Update <span className="font-bold">DATABASE_URL</span> in <span className="font-bold">.env</span> with the current Supabase Postgres connection string, then restart the dev server.</p>
+    </section>
   </div></main>;
 }
 
