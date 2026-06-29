@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ArrowDown, ArrowUpRight, Award, Building2, CheckCircle2, ClipboardCheck, DraftingCompass, Download, HardHat, Mail, MapPin, Phone, Ruler, Sparkles } from "lucide-react";
+import { ArrowDown, ArrowUpRight, Award, Building2, CheckCircle2, ClipboardCheck, DraftingCompass, Download, GraduationCap, HardHat, Mail, MapPin, Phone, Ruler, Sparkles } from "lucide-react";
 import { getPortfolioContent } from "@/lib/content";
 import { SiteHeader } from "@/components/site-header";
 import { SectionTitle } from "@/components/section-title";
@@ -10,6 +10,10 @@ import { ScrollProgress } from "@/components/scroll-progress";
 export const dynamic = "force-dynamic";
 
 const serviceIcons = { HardHat, ClipboardCheck, DraftingCompass, Building2 };
+
+function AboutHighlight({ icon: Icon, title, copy }: { icon: typeof MapPin; title: string; copy: string }) {
+  return <div className="bg-white p-5 sm:p-6"><Icon size={24} strokeWidth={1.7} className="text-copper" /><h3 className="mt-5 text-sm font-bold uppercase tracking-[.14em] text-ink">{title}</h3><p className="mt-3 text-sm leading-6 text-ink/55">{copy}</p></div>;
+}
 
 export default async function Home() {
   const { profile, stats, skills, services, projects, timeline, certifications, achievements, socialLinks } = await getPortfolioContent();
@@ -52,11 +56,21 @@ export default async function Home() {
 
     <section id="about" className="section-pad relative bg-concrete">
       <div className="section-rule" />
-      <div className="container-shell grid gap-14 lg:grid-cols-[.72fr_1.28fr]">
-        <div><p className="eyebrow">01 / About</p><p className="mt-6 font-display text-4xl font-semibold leading-tight">Engineering is the quiet discipline behind structures people trust.</p></div>
-        <div className="lg:border-l lg:border-ink/15 lg:pl-14">
-          <p className="text-2xl font-medium leading-relaxed text-ink/85">{profile.tagline}</p>
-          <p className="mt-6 leading-8 text-ink/60">{profile.aboutText}</p>
+      <div className="container-shell">
+        <div className="mx-auto max-w-4xl text-center"><p className="eyebrow">01 / About</p><h2 className="mt-5 font-display text-5xl font-semibold leading-[.98] tracking-normal sm:text-6xl">Practical field experience shaped by disciplined engineering study.</h2></div>
+        <div className="mx-auto mt-12 max-w-6xl border border-ink/10 bg-white p-6 shadow-premium sm:p-8 lg:p-10">
+          <div className="grid gap-10 lg:grid-cols-[1.05fr_.95fr] lg:items-start">
+            <div className="space-y-6 text-base leading-8 text-ink/62 sm:text-lg">
+              <p>I am <strong className="text-ink">{profile.name}</strong>, a <strong className="text-ink">{profile.title}</strong> based in <strong className="text-ink">{profile.location}</strong>.</p>
+              <p>{profile.tagline} My work combines site supervision, quality control, construction coordination, and design support for residential and building projects.</p>
+              <p>{profile.aboutText}</p>
+            </div>
+            <div className="grid gap-px bg-ink/10 sm:grid-cols-3 lg:grid-cols-1">
+              <AboutHighlight icon={MapPin} title="From" copy={profile.location} />
+              <AboutHighlight icon={GraduationCap} title="Education" copy="Bachelor of Civil Engineering" />
+              <AboutHighlight icon={HardHat} title="Focus" copy="Site supervision, quality control, design & drafting" />
+            </div>
+          </div>
           <div className="mt-10 grid grid-cols-2 gap-px bg-ink/10 sm:grid-cols-4">
             {stats.map(({ id, value, label }) => <div key={id} className="bg-concrete p-5"><strong className="block text-3xl">{value}</strong><span className="mt-2 block text-xs text-ink/50">{label}</span></div>)}
           </div>
