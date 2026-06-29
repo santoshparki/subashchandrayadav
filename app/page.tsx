@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { ArrowDown, ArrowUpRight, Award, Building2, CheckCircle2, ClipboardCheck, DraftingCompass, Download, GraduationCap, HardHat, Mail, MapPin, Phone, Ruler, Sparkles } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { getPortfolioContent } from "@/lib/content";
 import { SiteHeader } from "@/components/site-header";
 import { SectionTitle } from "@/components/section-title";
@@ -11,7 +12,13 @@ export const dynamic = "force-dynamic";
 
 const serviceIcons = { HardHat, ClipboardCheck, DraftingCompass, Building2 };
 
-function AboutHighlight({ icon: Icon, title, copy }: { icon: typeof MapPin; title: string; copy: string }) {
+function joinList(items: string[]) {
+  if (items.length <= 1) return items[0] || "";
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
+}
+
+function AboutHighlight({ icon: Icon, title, copy }: { icon: LucideIcon; title: string; copy: string }) {
   return <div className="bg-white p-5 sm:p-6"><Icon size={24} strokeWidth={1.7} className="text-copper" /><h3 className="mt-5 text-sm font-bold uppercase tracking-[.14em] text-ink">{title}</h3><p className="mt-3 text-sm leading-6 text-ink/55">{copy}</p></div>;
 }
 
@@ -19,6 +26,10 @@ export default async function Home() {
   const { profile, stats, skills, services, projects, timeline, certifications, achievements, socialLinks } = await getPortfolioContent();
   const experience = timeline.filter((item) => item.type === "experience");
   const education = timeline.filter((item) => item.type === "education");
+  const aboutHeading = profile.tagline || profile.heroHeading;
+  const focusSummary = joinList(services.map((service) => service.title)) || profile.title;
+  const educationSummary = education[0]?.title || "Engineering education";
+  const currentExperience = experience[0];
 
   return <main className="overflow-hidden">
     <ScrollProgress />
@@ -57,18 +68,18 @@ export default async function Home() {
     <section id="about" className="section-pad relative bg-concrete">
       <div className="section-rule" />
       <div className="container-shell">
-        <div className="mx-auto max-w-4xl text-center"><p className="eyebrow">01 / About</p><h2 className="mt-5 font-display text-5xl font-semibold leading-[.98] tracking-normal sm:text-6xl">Practical field experience shaped by disciplined engineering study.</h2></div>
+        <div className="mx-auto max-w-4xl text-center"><p className="eyebrow">01 / About</p><h2 className="mt-5 font-display text-5xl font-semibold leading-[.98] tracking-normal sm:text-6xl">{aboutHeading}</h2></div>
         <div className="mx-auto mt-12 max-w-6xl border border-ink/10 bg-white p-6 shadow-premium sm:p-8 lg:p-10">
           <div className="grid gap-10 lg:grid-cols-[1.05fr_.95fr] lg:items-start">
             <div className="space-y-6 text-base leading-8 text-ink/62 sm:text-lg">
               <p>I am <strong className="text-ink">{profile.name}</strong>, a <strong className="text-ink">{profile.title}</strong> based in <strong className="text-ink">{profile.location}</strong>.</p>
-              <p>{profile.tagline} My work combines site supervision, quality control, construction coordination, and design support for residential and building projects.</p>
+              <p>My work focuses on <strong className="text-ink">{focusSummary.toLowerCase()}</strong>{currentExperience ? `, supported by field experience as ${currentExperience.title} at ${currentExperience.organization}.` : "."}</p>
               <p>{profile.aboutText}</p>
             </div>
             <div className="grid gap-px bg-ink/10 sm:grid-cols-3 lg:grid-cols-1">
               <AboutHighlight icon={MapPin} title="From" copy={profile.location} />
-              <AboutHighlight icon={GraduationCap} title="Education" copy="Bachelor of Civil Engineering" />
-              <AboutHighlight icon={HardHat} title="Focus" copy="Site supervision, quality control, design & drafting" />
+              <AboutHighlight icon={GraduationCap} title="Education" copy={educationSummary} />
+              <AboutHighlight icon={HardHat} title="Focus" copy={focusSummary} />
             </div>
           </div>
           <div className="mt-10 grid grid-cols-2 gap-px bg-ink/10 sm:grid-cols-4">
