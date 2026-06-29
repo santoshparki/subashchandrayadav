@@ -23,14 +23,17 @@ export default async function Home() {
       <div className="blueprint-grid absolute inset-0 opacity-25" />
       <div className="hero-aurora absolute inset-0" />
       <div className="absolute -right-40 top-10 size-[34rem] rounded-full border border-copper/15 animate-slow-spin" />
-      <div className="container-shell relative grid min-h-[calc(100vh-5rem)] items-center gap-14 py-16 lg:grid-cols-[1.1fr_.72fr] lg:py-20">
+      <div className="container-shell relative grid min-h-[calc(100vh-5rem)] items-center gap-12 py-12 lg:grid-cols-[1.08fr_.72fr] lg:py-16">
         <div className="animate-fade-up">
-          <div className="mb-8 flex items-center gap-3 text-xs font-bold uppercase tracking-[.24em] text-copper"><span className="h-px w-10 bg-copper" />{profile.title}</div>
-          <h1 className="max-w-4xl font-display text-[clamp(3.4rem,8vw,8.8rem)] font-semibold leading-[.82] tracking-[-.045em]">{profile.heroHeading}</h1>
-          <p className="mt-9 max-w-xl text-base leading-8 text-white/62 sm:text-lg">{profile.summary}</p>
+          <div className="mb-7 flex flex-wrap items-center gap-3 text-xs font-bold uppercase tracking-[.24em] text-copper"><span className="h-px w-10 bg-copper" />{profile.title}<span className="hidden h-px w-10 bg-copper/35 sm:block" />{profile.location.split(",").slice(-2).join(",").trim()}</div>
+          <h1 className="max-w-4xl font-display text-6xl font-semibold leading-[.88] tracking-normal sm:text-7xl lg:text-8xl xl:text-9xl">{profile.heroHeading}</h1>
+          <p className="mt-8 max-w-2xl text-base leading-8 text-white/68 sm:text-lg">{profile.summary}</p>
           <div className="mt-9 flex flex-wrap gap-4">
-            <a href="#projects" className="button-light">View selected work <ArrowDown size={17} /></a>
+            <a href="#projects" className="button-light">View projects <ArrowDown size={17} /></a>
             <a href={profile.cvUrl} download className="button-outline"><Download size={17} /> Download CV</a>
+          </div>
+          <div className="mt-10 grid max-w-2xl gap-px bg-white/10 sm:grid-cols-3">
+            {stats.slice(0, 3).map((item) => <div key={item.id} className="bg-white/[.035] p-4"><strong className="block text-2xl text-white">{item.value}</strong><span className="mt-1 block text-[11px] font-bold uppercase tracking-[.14em] text-white/45">{item.label}</span></div>)}
           </div>
         </div>
         <div className="relative mx-auto w-full max-w-md animate-fade-up [animation-delay:.18s]">
@@ -42,6 +45,7 @@ export default async function Home() {
             </div>
           </div>
           <div className="absolute -bottom-7 -left-7 bg-copper p-5 text-ink shadow-premium"><p className="text-3xl font-bold">{profile.yearsExperience}</p><p className="text-[10px] font-bold uppercase tracking-[.18em]">Years on site</p></div>
+          <div className="absolute -right-4 top-8 max-w-48 border border-white/10 bg-ink/80 p-4 text-xs leading-6 text-white/60 shadow-premium backdrop-blur-md"><span className="mb-2 block text-[10px] font-bold uppercase tracking-[.18em] text-copper">Available for</span>{profile.availability}</div>
         </div>
       </div>
     </section>
@@ -77,10 +81,10 @@ export default async function Home() {
 
     <section id="projects" className="section-pad relative bg-ink text-white">
       <div className="blueprint-grid absolute inset-0 opacity-10" />
-      <div className="container-shell"><SectionTitle eyebrow="03 / Selected Work" title="Work defined by detail and delivery." copy="Representative project experience based on responsibilities documented in my CV." light />
-        <div className="relative mt-14 grid gap-6 lg:grid-cols-3">{projects.map((project, index) => <article key={project.id} className="project-card group">
-          <div className="blueprint-grid relative aspect-[4/3] overflow-hidden bg-blueprint">{project.imageUrl ? <Image src={project.imageUrl} alt={project.title} fill loading="lazy" className="object-cover transition duration-700 group-hover:scale-105" sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 33vw" /> : <Ruler className="absolute left-8 top-8 text-copper/70" size={38} strokeWidth={1} />}<div className="absolute inset-0 bg-gradient-to-br from-transparent to-ink/70" /><span className="absolute bottom-5 right-6 font-display text-7xl text-white/10">0{index + 1}</span></div>
-          <div className="border border-white/10 border-t-0 p-7"><div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-[.16em] text-copper"><span>{project.category}</span><span>{project.year}</span></div><h3 className="mt-5 text-xl font-bold">{project.title}</h3><p className="mt-4 text-sm leading-7 text-white/50">{project.description}</p><div className="mt-6 grid gap-3 text-xs text-white/45"><p className="flex items-center gap-2"><MapPin size={14} />{project.location}</p>{project.duration && <p>Duration: {project.duration}</p>}{project.role && <p>Role: {project.role}</p>}{project.technologies && <p>Tools: {project.technologies}</p>}</div>{project.responsibilities && <p className="mt-5 border-t border-white/10 pt-5 text-xs leading-6 text-white/45">{project.responsibilities}</p>}</div>
+      <div className="container-shell"><SectionTitle eyebrow="03 / Selected Work" title="Work defined by detail and delivery." copy="Representative project experience based on responsibilities documented in my CV. Replace these with named project photos as your portfolio grows." light />
+        <div className="relative mt-12 grid gap-6 lg:grid-cols-3">{projects.map((project, index) => <article key={project.id} className="project-card group bg-white/[.025]">
+          <div className="blueprint-grid relative aspect-[4/3] overflow-hidden bg-blueprint">{project.imageUrl ? <Image src={project.imageUrl} alt={project.title} fill loading="lazy" className="object-cover transition duration-700 group-hover:scale-105" sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 33vw" /> : <div className="absolute inset-0"><Ruler className="absolute left-8 top-8 text-copper/80" size={38} strokeWidth={1} /><div className="absolute bottom-8 left-8 right-8 border-t border-copper/30 pt-5"><p className="text-[10px] font-bold uppercase tracking-[.18em] text-copper">Representative work</p><p className="mt-2 text-sm text-white/55">{project.role || project.category}</p></div></div>}<div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-ink/75" /><span className="absolute bottom-5 right-6 font-display text-7xl text-white/10">0{index + 1}</span></div>
+          <div className="border border-white/10 border-t-0 p-7"><div className="flex items-center justify-between gap-4 text-[10px] font-bold uppercase tracking-[.16em] text-copper"><span>{project.category}</span><span className="shrink-0">{project.year}</span></div><h3 className="mt-5 text-xl font-bold">{project.title}</h3><p className="mt-4 text-sm leading-7 text-white/58">{project.description}</p><div className="mt-6 grid gap-3 text-xs text-white/50"><p className="flex items-center gap-2"><MapPin size={14} />{project.location}</p>{project.duration && <p>Duration: {project.duration}</p>}{project.role && <p>Role: {project.role}</p>}{project.technologies && <p>Tools: {project.technologies}</p>}</div>{project.responsibilities && <p className="mt-5 border-t border-white/10 pt-5 text-xs leading-6 text-white/48">{project.responsibilities}</p>}</div>
         </article>)}</div>
       </div>
     </section>
@@ -108,7 +112,7 @@ export default async function Home() {
     </section>}
 
     <section id="contact" className="section-pad relative bg-ink text-white"><div className="blueprint-grid absolute inset-0 opacity-20" /><div className="container-shell relative grid gap-14 lg:grid-cols-2">
-      <div><p className="eyebrow">07 / Contact</p><h2 className="mt-5 font-display text-5xl font-semibold leading-none sm:text-7xl">{profile.contactHeading}</h2><p className="mt-7 max-w-lg leading-8 text-white/55">{profile.contactIntro}</p>
+      <div><p className="eyebrow">07 / Contact</p><h2 className="mt-5 font-display text-5xl font-semibold leading-none tracking-normal sm:text-7xl">{profile.contactHeading}</h2><p className="mt-7 max-w-lg leading-8 text-white/60">{profile.contactIntro}</p><p className="mt-5 max-w-lg border-l-2 border-copper pl-5 text-sm font-bold uppercase tracking-[.14em] text-copper">{profile.availability}</p>
         <div className="mt-10 grid gap-4"><a href={`mailto:${profile.email}`} className="contact-link"><Mail size={18} />{profile.email}</a><a href={`tel:${profile.phone.replace(/\s/g, "")}`} className="contact-link"><Phone size={18} />{profile.phone}</a><div className="contact-link"><MapPin size={18} />{profile.location}</div></div>
         <div className="mt-8"><SocialLinks links={socialLinks} /></div>
       </div><ContactForm email={profile.email} />
