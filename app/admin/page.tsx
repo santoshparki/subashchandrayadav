@@ -74,14 +74,24 @@ export default async function AdminPage() {
 }
 
 async function getAdminData() {
-  const query = Promise.all([
-    prisma.profile.findUnique({ where: { id: 1 } }), prisma.siteStat.findMany({ orderBy: { sortOrder: "asc" } }), prisma.project.findMany({ orderBy: { sortOrder: "asc" } }), prisma.skill.findMany({ orderBy: { sortOrder: "asc" } }), prisma.service.findMany({ orderBy: { sortOrder: "asc" } }), prisma.timelineItem.findMany({ orderBy: { sortOrder: "asc" } }), prisma.certification.findMany({ orderBy: { sortOrder: "asc" } }), prisma.achievement.findMany({ orderBy: { sortOrder: "asc" } }), prisma.socialLink.findMany({ orderBy: { displayOrder: "asc" } }), prisma.enquiry.findMany({ orderBy: { createdAt: "desc" }, take: 50 })
-  ]);
+  const query = getAdminDataSequentially();
   const timeout = new Promise<never>((_, reject) => {
     setTimeout(() => reject(new Error(`Database did not respond within ${adminDataTimeoutMs / 1000} seconds.`)), adminDataTimeoutMs);
   });
-  const [profile, stats, projects, skills, services, timeline, certifications, achievements, socialLinks, enquiries] = await Promise.race([query, timeout]);
+  return Promise.race([query, timeout]);
+}
 
+async function getAdminDataSequentially() {
+  const profile = await prisma.profile.findUnique({ where: { id: 1 } });
+  const stats = await prisma.siteStat.findMany({ orderBy: { sortOrder: "asc" } });
+  const projects = await prisma.project.findMany({ orderBy: { sortOrder: "asc" } });
+  const skills = await prisma.skill.findMany({ orderBy: { sortOrder: "asc" } });
+  const services = await prisma.service.findMany({ orderBy: { sortOrder: "asc" } });
+  const timeline = await prisma.timelineItem.findMany({ orderBy: { sortOrder: "asc" } });
+  const certifications = await prisma.certification.findMany({ orderBy: { sortOrder: "asc" } });
+  const achievements = await prisma.achievement.findMany({ orderBy: { sortOrder: "asc" } });
+  const socialLinks = await prisma.socialLink.findMany({ orderBy: { displayOrder: "asc" } });
+  const enquiries = await prisma.enquiry.findMany({ orderBy: { createdAt: "desc" }, take: 50 });
   return { profile, stats, projects, skills, services, timeline, certifications, achievements, socialLinks, enquiries };
 }
 
